@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>Workout</title>
+<style>
+:root{--bg:#050505;--card:#111;--c2:#171717;--bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.14);--tx:#ece9e2;--mu:#8a8a85;--ac:#c8a45a;--dn:#e07a6f;--r:16px;--t:.2s ease;
+--f:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);font:15px/1.4 var(--f);min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;transition:transform .15s ease,background var(--t),border-color var(--t),color var(--t),opacity var(--t)}
+button:active{transform:scale(.96)}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.wrap{max-width:720px;margin:auto;padding:0 16px}
+.bar{position:sticky;top:0;z-index:5;background:rgba(5,5,5,.94);backdrop-filter:blur(10px);padding-top:env(safe-area-inset-top)}
+.bar .wrap{display:flex;align-items:center;gap:8px;padding-top:16px;padding-bottom:8px}
+.tabs{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;min-height:44px;padding:0 24px;border-radius:999px;border:1px solid var(--bd);background:var(--card);color:var(--mu);font-weight:600}
+.tab.on{background:var(--ac);border-color:var(--ac);color:#111}
+.ib{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:14px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+.ib:hover{border-color:var(--bd2)}.ib:disabled{opacity:.25;pointer-events:none}
+.ib svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn{min-height:44px;padding:0 16px;border-radius:14px;border:1px solid var(--bd2);background:var(--card);font-weight:600}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#111}
+.btn.dng{color:var(--dn);border-color:rgba(224,122,111,.35)}
+.btn.w{width:100%}
+main{padding-top:8px;padding-bottom:calc(48px + env(safe-area-inset-bottom))}
+.panel.in{animation:in .22s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dnote{color:var(--mu);font-size:13px;margin:8px 4px 16px}
+.list{display:grid;gap:16px;margin-top:16px}.dnote+.list{margin-top:0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.card.flash{animation:fl .7s ease}
+@keyframes fl{0%{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac),0 0 24px rgba(200,164,90,.25)}100%{}}
+.ch{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.cn{font-weight:600;font-size:17px;overflow-wrap:anywhere}
+.cnote{color:var(--mu);font-size:12px;white-space:nowrap}
+.var{margin-top:16px}.var+.var{padding-top:16px;border-top:1px solid var(--bd)}
+.vl{font-size:12px;color:var(--ac);font-weight:600;margin-bottom:8px}
+.vg{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);align-items:end;gap:8px}
+.vg>svg{width:24px;height:24px;stroke:var(--mu);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-bottom:16px}
+.lab{display:flex;justify-content:space-between;align-items:center;min-height:20px;margin-bottom:4px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.gain{color:var(--ac);letter-spacing:.02em;text-transform:none;font-size:12px}
+.val{width:100%;min-height:56px;padding:8px 12px;text-align:left;background:#0a0a0a;border:1px solid var(--bd);border-radius:12px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.val:hover{border-color:var(--bd2)}
+.val.end{color:var(--ac)}
+.val small{font-size:12px;font-weight:500;color:var(--mu);margin-left:4px}
+.nil{color:#4a4a47}
+.ed{display:grid;gap:4px}
+.num{width:100%;height:56px;padding:0 12px;background:#0a0a0a;border:1px solid var(--ac);border-radius:12px;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;outline:0}
+.stp{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.stp button{min-height:44px;border-radius:12px;background:var(--c2);border:1px solid var(--bd);font-size:22px;font-weight:600}
+.empty{text-align:center;padding:48px 16px;margin-top:16px;border:1px dashed var(--bd2);border-radius:var(--r);color:var(--mu)}
+.empty b{display:block;color:var(--tx);font-size:18px;margin-bottom:8px}
+.empty .btn{margin-top:16px}
+.sheet{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;transform:translateY(100%);visibility:hidden;transition:transform .25s ease,visibility .25s}
+.sheet.open{transform:none;visibility:visible}
+.sbar{position:sticky;top:0;z-index:2;background:rgba(5,5,5,.94);backdrop-filter:blur(10px);padding-top:env(safe-area-inset-top)}
+.sbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px}
+.sbar span,.h3{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.h3{margin:32px 0 8px}
+.in{width:100%;min-width:0;min-height:44px;padding:0 12px;background:#0a0a0a;border:1px solid var(--bd);border-radius:12px;outline:0;transition:border-color var(--t)}
+.in:focus{border-color:var(--ac)}
+.row{display:flex;gap:8px;align-items:center}
+.eday{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:16px;display:grid;gap:8px;margin-bottom:16px}
+.eex{background:var(--c2);border:1px solid var(--bd);border-radius:14px;padding:12px;display:grid;gap:8px}
+.eex .ib,.eday .ib{width:44px}
+.evar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) 44px;gap:8px;align-items:end}
+.evar .l{grid-column:1/-1}
+.evar label{display:grid;gap:4px;font-size:11px;color:var(--mu);letter-spacing:.08em;text-transform:uppercase}
+.evar.one{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grip{cursor:grab;touch-action:none;color:var(--mu)}
+.dragging{opacity:.6;border-color:var(--ac)!important}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#0a0a0a;border:1px solid var(--bd);border-radius:14px}
+.seg button{min-height:44px;border-radius:10px;font-weight:600;color:var(--mu)}
+.seg button.on{background:var(--ac);color:#111}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dz{border:1px solid rgba(224,122,111,.25);border-radius:var(--r);padding:16px;display:grid;gap:8px}
+.mo{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.72);opacity:0;pointer-events:none;transition:opacity var(--t)}
+.mo.open{opacity:1;pointer-events:auto}
+.mb{width:100%;max-width:360px;background:#121212;border:1px solid var(--bd2);border-radius:18px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.6)}
+.mb h2{font-size:18px;margin-bottom:8px}.mb p{color:var(--mu);margin-bottom:24px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:50;transform:translate(-50%,16px);display:flex;align-items:center;gap:16px;padding:8px 24px;min-height:44px;background:#1c1c1c;border:1px solid var(--bd2);border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:var(--t);white-space:nowrap}
+#toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast button{color:var(--ac);font-weight:700;min-height:44px;padding:0 8px}
+@media(max-width:400px){.val{font-size:24px;padding:8px}.card{padding:12px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="wrap"><nav class="tabs" id="tabs" role="tablist" aria-label="Workout days"></nav>
+<button class="ib" data-a="openEdit" aria-label="Edit"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></div></div>
+<main class="wrap" id="main"></main>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Edit workouts"></div>
+<div class="mo" id="mo" role="alertdialog" aria-modal="true"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+<script>
+"use strict";
+/* ============ HELPERS ============ */
+const $ = s => document.querySelector(s);
+let idc = 0;
+const uid = () => "i" + Date.now().toString(36) + (idc++).toString(36) + Math.random().toString(36).slice(2, 5);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => n == null ? "" : String(+(+n).toFixed(2));
+const parse = s => { s = String(s).trim().replace(",", "."); if (s === "") return null; const n = Number(s); return (isFinite(n) && n >= 0) ? n : NaN; };
+const IC = {
+  grip: '<svg viewBox="0 0 24 24"><path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01"/></svg>',
+  up: '<svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg>',
+  dn: '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
+  del: '<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>'
+};
+
+/* ============ DATA / STORAGE ============ */
+const KEY = "wt_data_v1";
+const V = (a, b, l) => ({id: uid(), label: l || "", start: a == null ? null : a, end: b == null ? null : b});
+const X = (n, vs, note) => ({id: uid(), name: n, note: note || "", variants: vs});
+const R = (n, a, b, note) => X(n, [V(a, b)], note);
+function seed() {
+  const D = (name, exercises, note) => ({id: uid(), name, note: note || "", exercises});
+  const days = [
+    D("Leg", [R("Dumbbell Squat"), R("Leg Extension", 25), R("Leg Curl", 25), R("Leg Press", 40, null, "total"), R("Bulgarian Split Squat", 5)]),
+    D("Arms", [X("Biceps Curl", [V(10, 25, "Cable"), V(5, null, "Dumbbell")]), R("Hammer Curl", 5, 10), R("Preacher Curl", 5, 7.5), R("Triceps Pushdown", 10, 25, "Cable"), X("Overhead Triceps Extension", [V(10, 20, "Cable"), V(7.5, 12.5, "Dumbbell")])], "4 sets"),
+    D("Back", [R("Lat Pulldown", 23, 36), R("Mid Row", 20, 40), R("T-Bar Row", 10, 22)]),
+    D("Chest", [R("Flat Dumbbell Press", 5, 10), R("Incline Dumbbell Press", 5, 10), R("Pec Fly", 25, 39)]),
+    D("Shoulder", [R("Dumbbell Shoulder Press", 5, 10), R("Pec Deck (Rear Delt)", 11, 28), R("Dumbbell Lateral Raise", 5, 7.5), R("Cable Front Raise", 10, 20), R("Shrugs", 15)])
+  ];
+  return {version: 1, unit: "kg", step: 2.5, days, activeDayId: days[0].id};
+}
+/* Validate/sanitize any stored or imported object. Throws if unusable. */
+function norm(o) {
+  if (!o || !Array.isArray(o.days)) throw new Error("bad");
+  const n = v => (v === null || v === undefined || v === "" || isNaN(+v) || +v < 0) ? null : +v;
+  const t = (v, l) => typeof v === "string" ? v.slice(0, l || 80) : "";
+  const days = o.days.map(d => ({
+    id: t(d.id) || uid(), name: t(d.name) || "Day", note: t(d.note, 120),
+    exercises: (Array.isArray(d.exercises) ? d.exercises : []).map(e => {
+      let vs = (Array.isArray(e.variants) ? e.variants : []).map(v => ({id: t(v.id) || uid(), label: t(v.label, 40), start: n(v.start), end: n(v.end)}));
+      if (!vs.length) vs = [V()];
+      return {id: t(e.id) || uid(), name: t(e.name) || "Exercise", note: t(e.note, 60), variants: vs};
+    })
+  }));
+  return {version: 1, unit: o.unit === "lb" ? "lb" : "kg", step: [0.5, 1, 2.5, 5].includes(+o.step) ? +o.step : 2.5, days,
+    activeDayId: days.some(d => d.id === o.activeDayId) ? o.activeDayId : (days[0] ? days[0].id : "")};
+}
+function load() {
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); if (raw) return norm(JSON.parse(raw)); }
+  catch (e) { if (raw) { try { localStorage.setItem(KEY + "_corrupt_backup", raw); } catch (_) {} } }
+  return seed();
+}
+let S = load(), saveT;
+function flush() { clearTimeout(saveT); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast("Could not save: storage unavailable"); } }
+function save() { clearTimeout(saveT); saveT = setTimeout(flush, 150); }
+addEventListener("pagehide", flush);
+document.addEventListener("visibilitychange", () => { if (document.hidden) flush(); });
+
+/* ============ STATE HELPERS ============ */
+const ui = {ed: null, flash: null, anim: false, sheet: false};
+const D = id => S.days.find(d => d.id === id);
+const curDay = () => D(S.activeDayId) || S.days[0];
+function E(id) { for (const d of S.days) { const e = d.exercises.find(x => x.id === id); if (e) return {d, e}; } }
+function Vr(id) { for (const d of S.days) for (const e of d.exercises) { const v = e.variants.find(x => x.id === id); if (v) return v; } }
+const arrOf = (kind, id) => kind === "day" ? S.days : E(id).d.exercises;
+const nameOf = (kind, id) => kind === "day" ? D(id).name : E(id).e.name;
+
+/* ============ RENDER: MAIN ============ */
+function col(v, f, lab, g) {
+  const ed = ui.ed && ui.ed.vid === v.id && ui.ed.f === f;
+  const inner = ed
+    ? `<div class="ed"><input class="num" id="ein" inputmode="decimal" autocomplete="off" aria-label="${lab} weight" placeholder="${f === "end" ? fmt(v.start) : ""}" value="${fmt(v[f])}"><div class="stp"><button data-a="step" data-s="-1" aria-label="Decrease ${lab}">−</button><button data-a="step" data-s="1" aria-label="Increase ${lab}">+</button></div></div>`
+    : `<button class="val ${f}" data-a="edit" data-f="${f}" aria-label="Edit ${lab} weight">${v[f] == null ? '<span class="nil">—</span>' : fmt(v[f]) + "<small>" + S.unit + "</small>"}</button>`;
+  return `<div class="col"><div class="lab"><span>${lab}</span>${g || ""}</div>${inner}</div>`;
+}
+function card(e) {
+  const many = e.variants.length > 1;
+  return `<article class="card" data-id="${esc(e.id)}"><div class="ch"><h2 class="cn">${esc(e.name)}</h2>${e.note ? `<span class="cnote">${esc(e.note)}</span>` : ""}</div>` +
+    e.variants.map(v => {
+      const g = (v.start != null && v.end != null && v.end > v.start) ? `<span class="gain">+${fmt(v.end - v.start)} ${S.unit}</span>` : "";
+      return `<div class="var" data-vid="${esc(v.id)}">${many ? `<div class="vl">${esc(v.label || "Variant")}</div>` : ""}<div class="vg">${col(v, "start", "Start")}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg>${col(v, "end", "Now", g)}</div></div>`;
+    }).join("") + "</article>";
+}
+function render() {
+  const day = curDay();
+  $("#tabs").innerHTML = S.days.map(d => `<button class="tab ${day && d.id === day.id ? "on" : ""}" role="tab" aria-selected="${!!day && d.id === day.id}" data-a="tab" data-d="${esc(d.id)}">${esc(d.name)}</button>`).join("");
+  let h = `<div class="panel ${ui.anim ? "in" : ""}" role="tabpanel">`;
+  if (!day) h += '<div class="empty"><b>No workout days yet</b>Create a day to start logging your weights.<br><button class="btn pri" data-a="addDayCta">Add your first workout day</button></div>';
+  else {
+    if (day.note) h += `<p class="dnote">${esc(day.note)}</p>`;
+    h += day.exercises.length ? '<div class="list">' + day.exercises.map(card).join("") + "</div>"
+      : '<div class="empty"><b>No exercises yet</b>Add the first exercise for this day.<br><button class="btn pri" data-a="addExCta">Add exercise</button></div>';
+  }
+  $("#main").innerHTML = h + "</div>"; ui.anim = false;
+  const act = $(".tab.on"); if (act) act.scrollIntoView({inline: "nearest", block: "nearest"});
+  if (ui.ed) { const i = $("#ein"); if (i) { i.focus(); i.select(); } }
+  if (ui.flash) { const el = document.querySelector(`[data-vid="${ui.flash}"]`); if (el) el.closest(".card").classList.add("flash"); ui.flash = null; }
+}
+
+/* ============ RENDER: EDIT SHEET ============ */
+function renderSheet(focusSel) {
+  const sh = $("#sheet"), top = sh.scrollTop;
+  const evar = (e, v) => {
+    const many = e.variants.length > 1;
+    return `<div class="evar ${many ? "" : "one"}" data-vid="${esc(v.id)}">` +
+      (many ? `<label class="l">Variant<div class="row"><input class="in" data-f="label" value="${esc(v.label)}" maxlength="40" aria-label="Variant label"><button class="ib" data-a="delVar" aria-label="Delete variant">${IC.del}</button></div></label>` : "") +
+      `<label>Start<input class="in" data-f="start" inputmode="decimal" value="${fmt(v.start)}"></label><label>End<input class="in" data-f="end" inputmode="decimal" value="${fmt(v.end)}"></label></div>`;
+  };
+  const ctl = (i, n) => `<button class="ib grip" data-a="grip" aria-label="Drag to reorder">${IC.grip}</button>`;
+  const btns = (i, n, what) => `<button class="ib" data-a="up" aria-label="Move ${what} up" ${i === 0 ? "disabled" : ""}>${IC.up}</button><button class="ib" data-a="down" aria-label="Move ${what} down" ${i === n - 1 ? "disabled" : ""}>${IC.dn}</button><button class="ib" data-a="del" aria-label="Delete ${what}">${IC.del}</button>`;
+  sh.innerHTML = `<div class="sbar"><div class="wrap"><span>Edit</span><button class="btn pri" data-a="done">Done</button></div></div><div class="wrap" style="padding-bottom:calc(48px + env(safe-area-inset-bottom))">` +
+    `<div class="h3" style="margin-top:8px">Units</div><div class="seg"><button data-a="unit" data-v="kg" class="${S.unit === "kg" ? "on" : ""}">kg</button><button data-a="unit" data-v="lb" class="${S.unit === "lb" ? "on" : ""}">lb</button></div>` +
+    `<div class="h3">Stepper size</div><select class="in" data-f="step" aria-label="Stepper size">${[0.5, 1, 2.5, 5].map(v => `<option value="${v}" ${S.step === v ? "selected" : ""}>${v} ${S.unit}</option>`).join("")}</select>` +
+    `<div class="h3">Workout days</div><div data-list="day">` +
+    S.days.map((d, i) => `<section class="eday" data-item data-kind="day" data-id="${esc(d.id)}"><div class="row">${ctl()}<input class="in" data-f="dname" value="${esc(d.name)}" maxlength="40" aria-label="Day name">${btns(i, S.days.length, "day")}</div>` +
+      `<input class="in" data-f="dnote" value="${esc(d.note)}" maxlength="120" placeholder="Day note, e.g. 4 sets" aria-label="Day note"><div data-list="ex" style="display:grid;gap:8px">` +
+      d.exercises.map((e, j) => `<div class="eex" data-item data-kind="ex" data-id="${esc(e.id)}"><div class="row">${ctl()}<input class="in" data-f="name" value="${esc(e.name)}" maxlength="60" aria-label="Exercise name">${btns(j, d.exercises.length, "exercise")}</div>` +
+        `<input class="in" data-f="note" value="${esc(e.note)}" maxlength="60" placeholder="Note, e.g. 4 sets" aria-label="Exercise note">` + e.variants.map(v => evar(e, v)).join("") +
+        `<button class="btn" data-a="addVar">+ Add variant</button></div>`).join("") + `</div><button class="btn" data-a="addEx">+ Add exercise</button></section>`).join("") +
+    `</div><button class="btn w" data-a="addDay">+ Add workout day</button>` +
+    `<div class="h3">Backup</div><div class="g2"><button class="btn" data-a="export">Export backup (JSON)</button><button class="btn" data-a="import">Import backup</button></div>` +
+    `<div class="h3">Danger zone</div><div class="dz"><button class="btn" data-a="restore">Restore default split</button><button class="btn dng" data-a="wipe">Delete everything and start from scratch</button></div></div>`;
+  sh.scrollTop = top;
+  if (focusSel) { const el = sh.querySelector(focusSel); if (el) { el.focus(); if (el.select) el.select(); el.scrollIntoView({block: "center"}); } }
+}
+function openSheet(sel) { ui.sheet = true; renderSheet(sel); requestAnimationFrame(() => $("#sheet").classList.add("open")); }
+function closeSheet() { ui.sheet = false; $("#sheet").classList.remove("open"); render(); }
+const refresh = sel => { render(); if (ui.sheet) renderSheet(sel); };
+
+/* ============ MODAL / TOAST ============ */
+let askFn = null, tt, undoSnap = null;
+function ask(title, msg, label, fn) {
+  askFn = fn;
+  $("#mo").innerHTML = `<div class="mb"><h2>${esc(title)}</h2><p>${esc(msg)}</p><div class="g2"><button class="btn" data-a="no">Cancel</button><button class="btn pri" data-a="yes">${esc(label)}</button></div></div>`;
+  $("#mo").classList.add("open"); const b = $('#mo [data-a="no"]'); if (b) b.focus();
+}
+const endAsk = () => { askFn = null; $("#mo").classList.remove("open"); };
+function toast(msg, undo) {
+  const t = $("#toast"); t.innerHTML = esc(msg) + (undo ? '<button data-a="undo">Undo</button>' : "");
+  t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => { t.classList.remove("show"); if (undo) undoSnap = null; }, undo ? 5000 : 1500);
+}
+function deleteWithUndo(fn, label) { undoSnap = JSON.stringify(S); fn(); save(); refresh(); toast(label + " deleted", true); }
+
+/* ============ ACTIONS ============ */
+function commitEd() {
+  const e = ui.ed; if (!e) return; ui.ed = null;
+  const v = Vr(e.vid), i = $("#ein"); let n = i ? parse(i.value) : v[e.f];
+  if (Number.isNaN(n)) { toast("Enter a number, 0 or higher"); n = e.orig; }
+  v[e.f] = n; save();
+  if (n !== e.orig) { ui.flash = e.vid; toast("Saved"); }
+  render();
+}
+function cancelEd() { const e = ui.ed; if (!e) return; ui.ed = null; Vr(e.vid)[e.f] = e.orig; save(); render(); }
+function move(kind, id, dir) {
+  const a = arrOf(kind, id), i = a.findIndex(x => x.id === id), j = i + dir;
+  if (j < 0 || j >= a.length) return;
+  [a[i], a[j]] = [a[j], a[i]]; save(); refresh();
+}
+function download() {
+  try {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], {type: "application/json"}));
+    a.download = "workout-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast("Backup exported");
+  } catch (e) { toast("Export failed"); }
+}
+const newEx = () => R("New exercise");
+function addDay() { const d = {id: uid(), name: "New day", note: "", exercises: []}; S.days.push(d); S.activeDayId = d.id; save(); return d; }
+function fullReplace(next) { S = next; ui.ed = null; save(); flush(); ui.anim = true; refresh(); }
+
+document.addEventListener("pointerdown", ev => {
+  if (ui.ed && ev.target.closest('[data-a="edit"],[data-a="step"]')) ev.preventDefault();   /* keep input focus */
+  const g = ev.target.closest('[data-a="grip"]'); if (g) startDrag(ev, g);
+});
+document.addEventListener("mousedown", ev => { if (ui.ed && ev.target.closest('[data-a="edit"],[data-a="step"]')) ev.preventDefault(); });
+
+document.addEventListener("click", ev => {
+  const b = ev.target.closest("[data-a]"); if (!b) return;
+  const a = b.dataset.a, it = b.closest("[data-item]"), kind = it && it.dataset.kind, id = it && it.dataset.id;
+  switch (a) {
+    case "tab": commitEd(); S.activeDayId = b.dataset.d; ui.anim = true; save(); render(); break;
+    case "edit": { if (ui.ed) commitEd(); const v = Vr(b.closest("[data-vid]").dataset.vid), f = b.dataset.f; ui.ed = {vid: v.id, f, orig: v[f]}; render(); break; }
+    case "step": {
+      const i = $("#ein"), v = Vr(ui.ed.vid); let n = parse(i.value); if (Number.isNaN(n) || n === null) n = v.start || 0;
+      n = Math.max(0, Math.round((n + (+b.dataset.s) * S.step) * 100) / 100); i.value = fmt(n); v[ui.ed.f] = n; save(); i.focus(); break;
+    }
+    case "openEdit": commitEd(); openSheet(); break;
+    case "done": closeSheet(); break;
+    case "addDayCta": addDay(); openSheet('[data-f="dname"]:last-of-type'); setTimeout(() => { const l = document.querySelectorAll('#sheet [data-f="dname"]'); if (l.length) { const x = l[l.length - 1]; x.focus(); x.select(); } }, 50); break;
+    case "addExCta": { const d = curDay(); d.exercises.push(newEx()); save(); openSheet(); setTimeout(() => { const l = document.querySelectorAll('#sheet [data-id="' + d.id + '"] [data-kind="ex"] [data-f="name"]'); if (l.length) { const x = l[l.length - 1]; x.focus(); x.select(); } }, 50); break; }
+    case "unit": S.unit = b.dataset.v; save(); refresh(); break;
+    case "up": move(kind, id, -1); break;
+    case "down": move(kind, id, 1); break;
+    case "del": ask("Delete " + kind + "?", '"' + nameOf(kind, id) + '"' + (kind === "day" ? " and all its exercises" : " and its weights") + " will be removed.", "Delete", () => {
+      deleteWithUndo(() => { if (kind === "day") { S.days = S.days.filter(d => d.id !== id); if (!D(S.activeDayId)) S.activeDayId = S.days[0] ? S.days[0].id : ""; } else { const f = E(id); f.d.exercises = f.d.exercises.filter(x => x.id !== id); } }, kind === "day" ? "Day" : "Exercise"); }); break;
+    case "addDay": { const d = addDay(); refresh(); const l = document.querySelectorAll('#sheet [data-f="dname"]'); const x = l[l.length - 1]; if (x) { x.focus(); x.select(); x.scrollIntoView({block: "center"}); } break; }
+    case "addEx": { const d = D(id); d.exercises.push(newEx()); save(); refresh(); const l = document.querySelectorAll('#sheet [data-id="' + id + '"] [data-kind="ex"] [data-f="name"]'); const x = l[l.length - 1]; if (x) { x.focus(); x.select(); x.scrollIntoView({block: "center"}); } break; }
+    case "addVar": { const e = E(id).e; if (!e.variants[0].label) e.variants[0].label = "Variant 1"; e.variants.push(V(null, null, "Variant " + (e.variants.length + 1))); save(); refresh(); break; }
+    case "delVar": { const vid = b.closest("[data-vid]").dataset.vid, e = E(id).e;
+      ask("Delete variant?", '"' + (Vr(vid).label || "Variant") + '" and its weights will be removed.', "Delete", () => deleteWithUndo(() => { e.variants = e.variants.filter(v => v.id !== vid); }, "Variant")); break; }
+    case "export": download(); break;
+    case "import": $("#file").click(); break;
+    case "restore": ask("Restore default split?", "This replaces all your days, exercises and weights with the original split.", "Restore", () => { undoSnap = JSON.stringify(S); fullReplace(seed()); toast("Defaults restored", true); }); break;
+    case "wipe": ask("Delete everything?", "All days, exercises and weights will be removed.", "Continue", () =>
+      ask("Are you absolutely sure?", "This wipes all your data and cannot be undone. Export a backup first if unsure.", "Delete everything", () => { fullReplace({version: 1, unit: S.unit, step: S.step, days: [], activeDayId: ""}); toast("Everything deleted"); })); break;
+    case "yes": { const fn = askFn; endAsk(); if (fn) fn(); break; }
+    case "no": endAsk(); break;
+    case "undo": if (undoSnap) { try { fullReplace(norm(JSON.parse(undoSnap))); } catch (e) {} undoSnap = null; $("#toast").classList.remove("show"); } break;
+  }
+});
+
+/* Field edits in the sheet + import + stepper setting */
+document.addEventListener("change", ev => {
+  const el = ev.target;
+  if (el.id === "file") {
+    const f = el.files[0]; el.value = ""; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { try { const d = norm(JSON.parse(r.result)); ask("Import backup?", "This replaces all current data with the file.", "Import", () => { undoSnap = JSON.stringify(S); fullReplace(d); toast("Backup imported", true); }); } catch (e) { toast("Not a valid backup file"); } };
+    r.onerror = () => toast("Could not read file"); r.readAsText(f); return;
+  }
+  const f = el.dataset.f; if (!f || !el.closest("#sheet")) return;
+  if (f === "step") { S.step = +el.value; save(); return; }
+  const dayEl = el.closest('[data-kind="day"]'), exEl = el.closest('[data-kind="ex"]'), vEl = el.closest("[data-vid]");
+  if (f === "dname") dayEl && (D(dayEl.dataset.id).name = el.value.trim() || "Day");
+  else if (f === "dnote") D(dayEl.dataset.id).note = el.value.trim();
+  else if (f === "name") E(exEl.dataset.id).e.name = el.value.trim() || "Exercise";
+  else if (f === "note") E(exEl.dataset.id).e.note = el.value.trim();
+  else if (f === "label") Vr(vEl.dataset.vid).label = el.value.trim();
+  else {
+    const n = parse(el.value), v = Vr(vEl.dataset.vid);
+    if (Number.isNaN(n)) { toast("Enter a number, 0 or higher"); el.value = fmt(v[f]); return; }
+    v[f] = n;
+  }
+  save(); render();
+});
+document.addEventListener("focusout", ev => { if (ev.target.id === "ein") commitEd(); });
+document.addEventListener("keydown", ev => {
+  if (ev.target.id === "ein") {
+    if (ev.key === "Enter") { ev.preventDefault(); commitEd(); } else if (ev.key === "Escape") { ev.preventDefault(); cancelEd(); }
+    return;
+  }
+  if (ev.key === "Escape") { if (askFn) endAsk(); else if (ui.sheet) closeSheet(); }
+});
+
+/* ============ DRAG & DROP (pointer events: mouse + touch) ============ */
+function startDrag(ev, grip) {
+  const item = grip.closest("[data-item]"), list = item.parentElement, kind = item.dataset.kind, sh = $("#sheet");
+  ev.preventDefault(); grip.setPointerCapture(ev.pointerId); item.classList.add("dragging");
+  const mv = e => {
+    const y = e.clientY;
+    if (y < 90) sh.scrollBy(0, -12); else if (y > innerHeight - 70) sh.scrollBy(0, 12);
+    const over = document.elementFromPoint(e.clientX, y), t = over && over.closest(`[data-kind="${kind}"]`);
+    if (!t || t === item || t.parentElement !== list) return;
+    const r = t.getBoundingClientRect();
+    list.insertBefore(item, y < r.top + r.height / 2 ? t : t.nextSibling);
+  };
+  const up = () => {
+    grip.removeEventListener("pointermove", mv); grip.removeEventListener("pointerup", up); grip.removeEventListener("pointercancel", up);
+    item.classList.remove("dragging");
+    const ids = [...list.children].map(c => c.dataset.id), arr = kind === "day" ? S.days : E(item.dataset.id).d.exercises;
+    const sorted = ids.map(i => arr.find(x => x.id === i)).filter(Boolean);
+    if (sorted.length === arr.length) { arr.splice(0, arr.length, ...sorted); save(); }
+    refresh();
+  };
+  grip.addEventListener("pointermove", mv); grip.addEventListener("pointerup", up); grip.addEventListener("pointercancel", up);
+}
+
+render();
+save();
+</script>
+</body>
+</html>
